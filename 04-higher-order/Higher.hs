@@ -54,3 +54,13 @@ map' f = foldr (\x xs -> f x : xs) []
 myFoldl :: (a -> b -> a) -> a -> [b] -> a
 myFoldl f base xs = foldr (\y ys -> f ys y) base xs
 
+
+cartProd :: [a] -> [b] -> [(a, b)]
+cartProd xs ys = [(x, y) | x <- xs, y <- ys]
+
+sieveSundaram :: Integer -> [Integer]
+sieveSundaram n =
+    let k = floor (sqrt (fromIntegral n / 2) :: Float)
+        exclude = filter (<= n) [i + j + 2 * i * j | j <- [1..k], i <- [1..n]]
+     in map ((1 +) . (2 *)) $ filter (\x -> not $ elem x exclude) [1..n]
+

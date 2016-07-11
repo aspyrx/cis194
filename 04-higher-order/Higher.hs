@@ -44,3 +44,13 @@ insertTree x (Node h l y r)
 foldTree :: [a] -> Tree a
 foldTree = foldr insertTree Leaf
 
+
+xor :: [Bool] -> Bool
+xor = foldr (\x y -> x /= y) False
+
+map' :: (a -> b) -> [a] -> [b]
+map' f = foldr (\x xs -> f x : xs) []
+
+myFoldl :: (a -> b -> a) -> a -> [b] -> a
+myFoldl f base xs = foldr (\y ys -> f ys y) base xs
+

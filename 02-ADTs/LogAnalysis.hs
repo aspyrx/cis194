@@ -34,3 +34,23 @@ parseMessage s =
 parse :: String -> [LogMessage]
 parse = map parseMessage . lines
 
+insert :: LogMessage -> MessageTree -> MessageTree
+insert (Unknown _) t = t
+insert m@(LogMessage _ a _) t =
+    case t of
+      Leaf -> Node Leaf m Leaf
+      Node l n@(LogMessage _ b _) r ->
+          if a < b
+             then Node (insert m l) n r
+             else Node l n (insert m r)
+
+build :: [LogMessage] -> MessageTree
+build = foldr insert Leaf
+
+inOrder :: MessageTree -> [LogMessage]
+inOrder Leaf = []
+inOrder (Node l m r) = inOrder l ++ m : inOrder r
+
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong l = [m | (LogMessage (Error c) _ m) <- inOrder $ build l, c > 50]
+

@@ -24,14 +24,27 @@ l +++ r = Append (tag l <> tag r) l r
 sizedInt :: (Sized b) => b -> Int
 sizedInt = getSize . size
 
+tagInt :: (Sized b, Monoid b) => JoinList b a -> Int
+tagInt = sizedInt . tag
+
 indexJ :: (Sized b, Monoid b) => Int -> JoinList b a -> Maybe a
 indexJ _ Empty = Nothing
 indexJ _ (Single _ a) = Just a
 indexJ i (Append m l r)
   | i < 0 || sizedInt m <= i = Nothing
-  | otherwise = let tagInt = sizedInt . tag
-                 in if i < tagInt l then indexJ i l else indexJ (tagInt r - i) r
+  | otherwise = if i < tagInt l then indexJ i l else indexJ (tagInt r - i) r
 
 dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
 dropJ _ Empty = Empty
+dropJ n j | n < 1 = j
+dropJ _ (Single _ _) = Empty
+dropJ n (Append _ l r)
+  | n >= tagInt l = dropJ (n - tagInt l) r
+  | otherwise = let nl = dropJ n l
+                 in Append (tag nl <> tag r) nl r
+
+takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ n _ | n < 1 = Empty
+takeJ _ j@(Single _ _) = j
+takeJ n (Append _ l r)
 

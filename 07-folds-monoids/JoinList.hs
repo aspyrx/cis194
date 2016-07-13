@@ -40,11 +40,12 @@ dropJ n j | n < 1 = j
 dropJ _ (Single _ _) = Empty
 dropJ n (Append _ l r)
   | n >= tagInt l = dropJ (n - tagInt l) r
-  | otherwise = let nl = dropJ n l
-                 in Append (tag nl <> tag r) nl r
+  | otherwise = dropJ n l +++ r
 
 takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
 takeJ n _ | n < 1 = Empty
 takeJ _ j@(Single _ _) = j
 takeJ n (Append _ l r)
+  | n <= tagInt l = takeJ n l
+  | otherwise = l +++ takeJ (n - tagInt r) r
 

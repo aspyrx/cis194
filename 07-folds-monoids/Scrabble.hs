@@ -8,6 +8,10 @@ import Data.Monoid
 newtype Score = Score Int
     deriving (Eq, Ord, Show, Num)
 
+instance Monoid Score where
+    mempty = Score 0
+    mappend = (+)
+
 getScore :: Score -> Int
 getScore (Score i) = i
 
@@ -23,7 +27,6 @@ score c = let f = elem $ toLower c
                   | f ['q', 'z'] -> 10
                   | otherwise -> 0
 
-instance Monoid Score where
-    mempty = Score 0
-    mappend = (+)
+scoreString :: String -> Score
+scoreString = foldr (<>) 0 . map score
 

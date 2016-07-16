@@ -58,18 +58,28 @@ first :: (a -> b) -> (a, c) -> (b, c)
 first f (a, c) = (f a, c)
 
 instance Functor Parser where
-    fmap f (Parser p) = Parser (\s -> first f <$> p s)
+    fmap f (Parser p) = Parser $ \s -> first f <$> p s
 
 instance Applicative Parser where
-    pure a = Parser (\s -> Just (a, s))
+    pure a = Parser $ \s -> Just (a, s)
     Parser l <*> Parser r = Parser $ maybe Nothing (\(f, rest) -> first f <$> r rest) <$> l
 
 abParser :: Parser (Char, Char)
 abParser = (,) <$> char 'a' <*> char 'b'
 
+discard :: Parser a -> Parser ()
+discard = (<$>) $ const ()
+
 abParser_ :: Parser ()
-abParser_ = const () <$> abParser
+abParser_ = discard abParser
 
 intPair :: Parser [Integer]
 intPair = (\x _ y -> x : [y])  <$> posInt <*> char ' ' <*> posInt
+
+instance Alternative Parser where
+    empty = Parser $ const Nothing
+    Parser l <|> Parser r = Parser $ liftA2 (<|>) l r
+
+intOrUppercase :: Parser ()
+intOrUppercase = discard posInt <|> discard (satisfy (`elem` ['A'..'Z']))
 

@@ -81,5 +81,5 @@ instance Alternative Parser where
     Parser l <|> Parser r = Parser $ liftA2 (<|>) l r
 
 intOrUppercase :: Parser ()
-intOrUppercase = discard posInt <|> discard (satisfy (`elem` ['A'..'Z']))
+intOrUppercase = discard posInt <|> discard (satisfy isUpper)
 
